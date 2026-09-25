@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>KITEGA PRIMARY SCHOOL</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f4f7fb;
+  color:#172033;
+}
+
+header{
+  background:#0b4f6c;
+  color:white;
+  padding:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+header h2{
+  font-size:18px;
+}
+
+.logout{
+  background:#d92d20;
+  color:white;
+  border:0;
+  padding:9px 14px;
+  border-radius:7px;
+}
+
+.login-page{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+  background:linear-gradient(135deg,#0b4f6c,#168aad);
+}
+
+.login-box{
+  width:100%;
+  max-width:420px;
+  background:white;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 10px 35px rgba(0,0,0,.2);
+}
+
+.logo{
+  text-align:center;
+  font-size:55px;
+}
+
+.login-box h1{
+  text-align:center;
+  color:#0b4f6c;
+  font-size:24px;
+  margin:10px 0;
+}
+
+.subtitle{
+  text-align:center;
+  color:#667085;
+  margin-bottom:25px;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin:14px 0 7px;
+}
+
+input,select{
+  width:100%;
+  padding:13px;
+  border:1px solid #d0d5dd;
+  border-radius:8px;
+  font-size:15px;
+}
+
+.login-btn,
+.save-btn{
+  width:100%;
+  margin-top:20px;
+  padding:14px;
+  background:#0b4f6c;
+  color:white;
+  border:0;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.message{
+  text-align:center;
+  margin-top:15px;
+}
+
+.dashboard{
+  display:none;
+}
+
+.container{
+  width:94%;
+  max-width:1100px;
+  margin:25px auto;
+}
+
+.welcome,
+.section{
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,.07);
+  margin-bottom:20px;
+}
+
+.welcome h1,
+.section h2{
+  color:#0b4f6c;
+  margin-bottom:10px;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(160px,1fr));
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.card{
+  background:white;
+  padding:22px;
+  border-radius:14px;
+  text-align:center;
+  box-shadow:0 4px 15px rgba(0,0,0,.07);
+}
+
+.card .icon{
+  font-size:32px;
+}
+
+.card h3{
+  color:#0b4f6c;
+  margin:8px 0;
+}
+
+.card p{
+  color:#667085;
+  font-size:14px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+}
+
+.student-list{
+  overflow-x:auto;
+  margin-top:20px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+  white-space:nowrap;
+}
+
+th{
+  background:#f4f7fb;
+  color:#0b4f6c;
+}
+
+.delete{
+  background:#d92d20;
+  color:white;
+  border:0;
+  padding:7px 10px;
+  border-radius:5px;
+}
+
+@media(max-width:600px){
+  header h2{
+    font-size:14px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div id="loginPage" class="login-page">
+
+  <div class="login-box">
+
+    <div class="logo">🏫</div>
+
+    <h1>KITEGA PRIMARY SCHOOL</h1>
+
+    <p class="subtitle">
+      School Management System
+    </p>
+
+    <form id="loginForm">
+
+      <label>Teacher Username</label>
+
+      <input
+        id="username"
+        type="text"
+        placeholder="teacher001"
+        required
+      >
+
+      <label>Password</label>
+
+      <input
+        id="password"
+        type="password"
+        placeholder="123456"
+        required
+      >
+
+      <button
+        class="login-btn"
+        type="submit">
+
+        LOGIN
+
+      </button>
+
+      <div
+        id="loginMessage"
+        class="message">
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- DASHBOARD -->
+
+<div id="dashboard" class="dashboard">
+
+<header>
+
+  <div>
+
+    <h2>
+      🏫 KITEGA PRIMARY SCHOOL
+    </h2>
+
+    <small id="teacherName">
+      Teacher Dashboard
+    </small>
+
+  </div>
+
+  <button
+    class="logout"
+    onclick="logout()">
+
+    LOGOUT
+
+  </button>
+
+</header>
+
+
+<div class="container">
+
+  <div class="welcome">
+
+    <h1>
+      Welcome Teacher 👨‍🏫
+    </h1>
+
+    <p>
+      Manage students and school information
+      from this dashboard.
+    </p>
+
+  </div>
+
+
+  <div class="cards">
+
+    <div class="card">
+      <div class="icon">👨‍🎓</div>
+      <h3>Students</h3>
+      <p>Register students</p>
+    </div>
+
+    <div class="card">
+      <div class="icon">📊</div>
+      <h3>Results</h3>
+      <p>Manage results</p>
+    </div>
+
+    <div class="card">
+      <div class="icon">📅</div>
+      <h3>Attendance</h3>
+      <p>Record attendance</p>
+    </div>
+
+    <div class="card">
+      <div class="icon">📄</div>
+      <h3>Reports</h3>
+      <p>Student reports</p>
+    </div>
+
+  </div>
+
+
+  <!-- REGISTER STUDENT -->
+
+  <div class="section">
+
+    <h2>👨‍🎓 Register Student</h2>
+
+    <form id="studentForm">
+
+      <div class="form-grid">
+
+        <div>
+          <label>Registration Number</label>
+
+          <input
+            id="regNo"
+            placeholder="KPS001"
+            required>
+        </div>
+
+        <div>
+          <label>Full Name</label>
+
+          <input
+            id="fullName"
+            placeholder="Student full name"
+            required>
+        </div>
+
+        <div>
+          <label>Gender</label>
+
+          <select id="gender" required>
+
+            <option value="">
+              Select gender
+            </option>
+
+            <option value="Male">
+              Male
+            </option>
+
+            <option value="Female">
+              Female
+            </option>
+
+          </select>
+        </div>
+
+        <div>
+          <label>Class</label>
+
+          <input
+            id="className"
+            placeholder="Standard 7"
+            required>
+        </div>
+
+        <div>
+          <label>Parent Name</label>
+
+          <input
+            id="parentName"
+            placeholder="Parent / Guardian">
+        </div>
+
+        <div>
+          <label>Parent Phone</label>
+
+          <input
+            id="parentPhone"
+            placeholder="0712345678">
+        </div>
+
+        <div>
+          <label>Date of Birth</label>
+
+          <input
+            id="dob"
+            type="date">
+        </div>
+
+      </div>
+
+      <button
+        class="save-btn"
+        type="submit">
+
+        REGISTER STUDENT
+
+      </button>
+
+      <div
+        id="studentMessage"
+        class="message">
+      </div>
+
+    </form>
+
+  </div>
+
+
+  <!-- STUDENTS -->
+
+  <div class="section">
+
+    <h2>
+      👨‍🎓 Registered Students
+    </h2>
+
+    <div class="student-list">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Reg No.</th>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>Class</th>
+            <th>Parent</th>
+            <th>Phone</th>
+            <th>Action</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="studentsTable">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  <!-- RESULTS -->
+
+  <div class="section">
+
+    <h2>📊 Results</h2>
+
+    <p>
+      Results management will be added here.
+    </p>
+
+  </div>
+
+
+  <!-- ATTENDANCE -->
+
+  <div class="section">
+
+    <h2>📅 Attendance</h2>
+
+    <p>
+      Attendance management will be added here.
+    </p>
+
+  </div>
+
+
+  <!-- REPORTS -->
+
+  <div class="section">
+
+    <h2>📄 Reports</h2>
+
+    <p>
+      Student reports will be added here.
+    </p>
+
+  </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const SUPABASE_URL =
+"https://fifqskyooaxadfnhxlnq.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_SCL2gLywydIm2NmiQGBWxA_VRnW9DnX";
+
+const db =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+/* LOGIN */
+
+document
+.getElementById("loginForm")
+.addEventListener("submit", async function(e){
+
+  e.preventDefault();
+
+  const username =
+    document.getElementById("username")
+    .value.trim();
+
+  const password =
+    document.getElementById("password")
+    .value;
+
+  const message =
+    document.getElementById("loginMessage");
+
+  message.style.color="#667085";
+  message.textContent="Checking...";
+
+
+  const {data,error} =
+    await db
+      .from("teachers")
+      .select("*")
+      .eq("username",username)
+      .eq("password",password)
+      .maybeSingle();
+
+
+  if(error){
+
+    console.error(error);
+
+    message.style.color="red";
+
+    message.textContent=
+      "Database error: "+error.message;
+
+    return;
+  }
+
+
+  if(!data){
+
+    message.style.color="red";
+
+    message.textContent=
+      "Wrong username or password.";
+
+    return;
+  }
+
+
+  localStorage.setItem(
+    "teacher",
+    JSON.stringify(data)
+  );
+
+
+  showDashboard(data);
+
+});
+
+
+/* SHOW DASHBOARD */
+
+function showDashboard(teacher){
+
+  document.getElementById(
+    "loginPage"
+  ).style.display="none";
+
+  document.getElementById(
+    "dashboard"
+  ).style.display="block";
+
+  document.getElementById(
+    "teacherName"
+  ).textContent=
+    "Teacher: "+teacher.full_name;
+
+  loadStudents();
+
+}
+
+
+/* LOGOUT */
+
+function logout(){
+
+  localStorage.removeItem("teacher");
+
+  document.getElementById(
+    "dashboard"
+  ).style.display="none";
+
+  document.getElementById(
+    "loginPage"
+  ).style.display="flex";
+
+  document.getElementById(
+    "password"
+  ).value="";
+
+}
+
+
+/* REGISTER STUDENT */
+
+document
+.getElementById("studentForm")
+.addEventListener("submit",async function(e){
+
+  e.preventDefault();
+
+  const message =
+    document.getElementById(
+      "studentMessage"
+    );
+
+  message.style.color="#667085";
+  message.textContent="Saving student...";
+
+
+  const student={
+
+    registration_no:
+      document.getElementById(
+        "regNo"
+      ).value.trim(),
+
+    full_name:
+      document.getElementById(
+        "fullName"
+      ).value.trim(),
+
+    gender:
+      document.getElementById(
+        "gender"
+      ).value,
+
+    class_name:
+      document.getElementById(
+        "className"
+      ).value.trim(),
+
+    parent_name:
+      document.getElementById(
+        "parentName"
+      ).value.trim() || null,
+
+    parent_phone:
+      document.getElementById(
+        "parentPhone"
+      ).value.trim() || null,
+
+    date_of_birth:
+      document.getElementById(
+        "dob"
+      ).value || null
+
+  };
+
+
+  const {error} =
+    await db
+      .from("students")
+      .insert([student]);
+
+
+  if(error){
+
+    console.error(error);
+
+    message.style.color="red";
+
+    message.textContent=
+      "Failed: "+error.message;
+
+    return;
+  }
+
+
+  message.style.color="green";
+
+  message.textContent=
+    "Student registered successfully!";
+
+
+  document.getElementById(
+    "studentForm"
+  ).reset();
+
+
+  loadStudents();
+
+});
+
+
+/* LOAD STUDENTS */
+
+async function loadStudents(){
+
+  const table =
+    document.getElementById(
+      "studentsTable"
+    );
+
+
+  const {data,error} =
+    await db
+      .from("students")
+      .select("*")
+      .order("id",{ascending:false});
+
+
+  if(error){
+
+    table.innerHTML=
+      "<tr><td colspan='7'>"+
+      "Failed to load students"+
+      "</td></tr>";
+
+    console.error(error);
+
+    return;
+  }
+
+
+  if(!data || data.length===0){
+
+    table.innerHTML=
+      "<tr><td colspan='7'>"+
+      "No students registered yet."+
+      "</td></tr>";
+
+    return;
+  }
+
+
+  table.innerHTML="";
+
+
+  data.forEach(function(student){
+
+    const row =
+      document.createElement("tr");
+
+
+    row.innerHTML=`
+
+      <td>${safe(student.registration_no)}</td>
+
+      <td>${safe(student.full_name)}</td>
+
+      <td>${safe(student.gender || "")}</td>
+
+      <td>${safe(student.class_name)}</td>
+
+      <td>${safe(student.parent_name || "")}</td>
+
+      <td>${safe(student.parent_phone || "")}</td>
+
+      <td>
+        <button
+          class="delete"
+          onclick="deleteStudent(${student.id})">
+          Delete
+        </button>
+      </td>
+
+    `;
+
+
+    table.appendChild(row);
+
+  });
+
+}
+
+
+/* DELETE */
+
+async function deleteStudent(id){
+
+  if(!confirm(
+    "Delete this student?"
+  )){
+    return;
+  }
+
+
+  const {error} =
+    await db
+      .from("students")
+      .delete()
+      .eq("id",id);
+
+
+  if(error){
+
+    alert(
+      "Delete failed: "+
+      error.message
+    );
+
+    return;
+  }
+
+
+  loadStudents();
+
+}
+
+
+/* SECURITY FOR DISPLAY */
+
+function safe(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+/* AUTO LOGIN */
+
+const savedTeacher =
+  JSON.parse(
+    localStorage.getItem("teacher") || "null"
+  );
+
+
+if(savedTeacher){
+
+  showDashboard(savedTeacher);
+
+}
+
+</script>
+
+</body>
+</html>
