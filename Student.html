@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>KITEGA PRIMARY SCHOOL - Students</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f4f7fb;
+  color:#172033;
+}
+
+header{
+  background:#0b4f6c;
+  color:white;
+  padding:16px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+header h2{
+  font-size:18px;
+}
+
+.back{
+  background:white;
+  color:#0b4f6c;
+  border:0;
+  padding:9px 14px;
+  border-radius:7px;
+  font-weight:bold;
+}
+
+.container{
+  width:94%;
+  max-width:1100px;
+  margin:25px auto;
+}
+
+.box{
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,.07);
+  margin-bottom:20px;
+}
+
+h1,h2{
+  color:#0b4f6c;
+  margin-bottom:15px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin-bottom:7px;
+}
+
+input,select{
+  width:100%;
+  padding:13px;
+  border:1px solid #d0d5dd;
+  border-radius:8px;
+  font-size:15px;
+}
+
+.save{
+  width:100%;
+  margin-top:20px;
+  padding:13px;
+  background:#0b4f6c;
+  color:white;
+  border:0;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+#message{
+  text-align:center;
+  margin-top:15px;
+  min-height:20px;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:11px;
+  border-bottom:1px solid #eee;
+  text-align:left;
+  white-space:nowrap;
+  font-size:14px;
+}
+
+th{
+  background:#f4f7fb;
+  color:#0b4f6c;
+}
+
+.delete{
+  background:#d92d20;
+  color:white;
+  border:0;
+  padding:7px 10px;
+  border-radius:6px;
+}
+
+@media(max-width:600px){
+  header h2{font-size:14px}
+  .box{padding:18px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+  <h2>🏫 KITEGA PRIMARY SCHOOL</h2>
+
+  <button
+    class="back"
+    onclick="location.href='./dashboard.html'">
+
+    Dashboard
+
+  </button>
+
+</header>
+
+<div class="container">
+
+  <div class="box">
+
+    <h1>Register Student</h1>
+
+    <form id="studentForm">
+
+      <div class="grid">
+
+        <div>
+          <label>Registration Number</label>
+
+          <input
+            id="registration_no"
+            type="text"
+            placeholder="KPS001"
+            required>
+        </div>
+
+        <div>
+          <label>Full Name</label>
+
+          <input
+            id="full_name"
+            type="text"
+            placeholder="Student full name"
+            required>
+        </div>
+
+        <div>
+          <label>Gender</label>
+
+          <select id="gender" required>
+
+            <option value="">
+              Select gender
+            </option>
+
+            <option value="Male">
+              Male
+            </option>
+
+            <option value="Female">
+              Female
+            </option>
+
+          </select>
+        </div>
+
+        <div>
+          <label>Class</label>
+
+          <input
+            id="class_name"
+            type="text"
+            placeholder="Standard 7"
+            required>
+        </div>
+
+        <div>
+          <label>Parent Name</label>
+
+          <input
+            id="parent_name"
+            type="text"
+            placeholder="Parent / Guardian">
+        </div>
+
+        <div>
+          <label>Parent Phone</label>
+
+          <input
+            id="parent_phone"
+            type="tel"
+            placeholder="0712345678">
+        </div>
+
+        <div>
+          <label>Date of Birth</label>
+
+          <input
+            id="date_of_birth"
+            type="date">
+        </div>
+
+      </div>
+
+      <button
+        class="save"
+        type="submit">
+
+        REGISTER STUDENT
+
+      </button>
+
+      <p id="message"></p>
+
+    </form>
+
+  </div>
+
+
+  <div class="box">
+
+    <h2>👨‍🎓 Registered Students</h2>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Registration No.</th>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>Class</th>
+            <th>Parent</th>
+            <th>Phone</th>
+            <th>Action</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="studentsList">
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const SUPABASE_URL =
+"https://fifqskyooaxadfnhxlnq.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_SCL2gLywydIm2NmiQGBWxA_VRnW9DnX";
+
+const db =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+/* REGISTER */
+
+document.getElementById("studentForm")
+.addEventListener("submit", async function(e){
+
+  e.preventDefault();
+
+  const message =
+    document.getElementById("message");
+
+  message.style.color = "#667085";
+  message.textContent =
+    "Registering...";
+
+  const student = {
+
+    registration_no:
+      document.getElementById(
+        "registration_no"
+      ).value.trim(),
+
+    full_name:
+      document.getElementById(
+        "full_name"
+      ).value.trim(),
+
+    gender:
+      document.getElementById(
+        "gender"
+      ).value,
+
+    class_name:
+      document.getElementById(
+        "class_name"
+      ).value.trim(),
+
+    parent_name:
+      document.getElementById(
+        "parent_name"
+      ).value.trim() || null,
+
+    parent_phone:
+      document.getElementById(
+        "parent_phone"
+      ).value.trim() || null,
+
+    date_of_birth:
+      document.getElementById(
+        "date_of_birth"
+      ).value || null
+
+  };
+
+
+  const {error} =
+    await db
+      .from("students")
+      .insert([student]);
+
+
+  if(error){
+
+    console.error(error);
+
+    message.style.color = "red";
+
+    message.textContent =
+      "Registration failed: " +
+      error.message;
+
+    return;
+  }
+
+
+  message.style.color = "green";
+
+  message.textContent =
+    "Student registered successfully!";
+
+  document.getElementById(
+    "studentForm"
+  ).reset();
+
+  loadStudents();
+
+});
+
+
+/* LOAD STUDENTS */
+
+async function loadStudents(){
+
+  const list =
+    document.getElementById(
+      "studentsList"
+    );
+
+  list.innerHTML =
+    "<tr><td colspan='7'>Loading...</td></tr>";
+
+
+  const {data,error} =
+    await db
+      .from("students")
+      .select("*")
+      .order("id",{ascending:false});
+
+
+  if(error){
+
+    list.innerHTML =
+      "<tr><td colspan='7'>Error loading students</td></tr>";
+
+    console.error(error);
+
+    return;
+  }
+
+
+  if(!data || data.length === 0){
+
+    list.innerHTML =
+      "<tr><td colspan='7'>No students found.</td></tr>";
+
+    return;
+  }
+
+
+  list.innerHTML = "";
+
+
+  data.forEach(function(student){
+
+    const row =
+      document.createElement("tr");
+
+
+    row.innerHTML = `
+
+      <td>${safe(student.registration_no)}</td>
+
+      <td>${safe(student.full_name)}</td>
+
+      <td>${safe(student.gender || "")}</td>
+
+      <td>${safe(student.class_name)}</td>
+
+      <td>${safe(student.parent_name || "")}</td>
+
+      <td>${safe(student.parent_phone || "")}</td>
+
+      <td>
+        <button
+          class="delete"
+          onclick="deleteStudent(${student.id})">
+          Delete
+        </button>
+      </td>
+
+    `;
+
+
+    list.appendChild(row);
+
+  });
+
+}
+
+
+/* DELETE */
+
+async function deleteStudent(id){
+
+  if(!confirm(
+    "Delete this student?"
+  )){
+    return;
+  }
+
+
+  const {error} =
+    await db
+      .from("students")
+      .delete()
+      .eq("id",id);
+
+
+  if(error){
+
+    alert(
+      "Delete failed: " +
+      error.message
+    );
+
+    return;
+  }
+
+
+  loadStudents();
+
+}
+
+
+/* SAFE DISPLAY */
+
+function safe(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+loadStudents();
+
+</script>
+
+</body>
+</html>
